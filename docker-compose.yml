@@ -1,4 +1,4 @@
-version: "3"
+version: "3.5"
 services:
   app:
     build:
@@ -7,6 +7,8 @@ services:
     image: tomw1808/laravelproject
     container_name: app
     restart: unless-stopped
+    networks:
+      - LAN
     volumes:
     - ./:/var/www
     - ./config/php/local.ini:/usr/local/etc/php/conf.d/local.ini
@@ -17,6 +19,8 @@ services:
     image: tomw1808/nginx
     container_name: web_server
     restart: unless-stopped
+    networks:
+      - LAN
     environment:
       DB_HOST: db
       DB_PASSWORD: secret
@@ -31,6 +35,8 @@ services:
   db:
     image: mysql:5.7.22
     container_name: db
+    networks:
+      - LAN
     environment:
       MYSQL_DATABASE: laravel
       MYSQL_ROOT_PASSWORD: secret
@@ -38,7 +44,19 @@ services:
       - "3306:3306"
     volumes:
       - dbdata:/var/lib/mysql
+  composer_installation:
+    container_name: composer_installation
+    image: composer
+    volumes:
+      - ./:/app
+    command: composer install --ignore-platform-reqs
+networks:
+  LAN:
+    driver: bridge
+    name: apim2_LAN
 
 volumes:
   dbdata:
     driver: local
+
+
